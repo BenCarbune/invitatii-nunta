@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog Invitați</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fffdfb;
+    --blush:#f6e3e1;
+    --blush-deep:#e8b9b6;
+    --rose-line:#e3c4c1;
+    --ink:#3a2e2d;
+    --ink-soft:#8a7674;
+    --gold:#c9a35f;
+    --confirmed:#9aab87;
+    --declined:#c98a8a;
+    --pending:#d8b96a;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(246,227,225,0.55), transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(246,227,225,0.45), transparent 50%),
+      var(--paper);
+    min-height:100vh;
+    font-family:'Jost', sans-serif;
+    color:var(--ink);
+    padding:48px 20px 80px;
+  }
+
+  .wrap{ max-width:900px; margin:0 auto; }
+
+  /* ---------- Header ---------- */
+  header{
+    text-align:center;
+    margin-bottom:40px;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'Jost', sans-serif;
+    font-size:11px;
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'Marcellus', serif;
+    font-weight:400;
+    font-size:clamp(36px,6vw,56px);
+    letter-spacing:0.02em;
+    margin:0 0 10px;
+    color:var(--ink);
+  }
+  .subtitle{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:19px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .ornament{
+    width:120px;
+    height:14px;
+    margin:22px auto 0;
+    position:relative;
+  }
+  .ornament::before, .ornament::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    width:42px;
+    height:1px;
+    background:var(--blush-deep);
+  }
+  .ornament::before{ left:0; }
+  .ornament::after{ right:0; }
+  .ornament span{
+    position:absolute;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%) rotate(45deg);
+    width:7px; height:7px;
+    background:var(--blush-deep);
+  }
+
+  /* ---------- Stats ---------- */
+  .stats{
+    display:flex;
+    justify-content:center;
+    gap:34px;
+    margin-bottom:36px;
+    flex-wrap:wrap;
+  }
+  .stat{ text-align:center; }
+  .stat .num{
+    font-family:'Marcellus', serif;
+    font-size:26px;
+    color:var(--ink);
+  }
+  .stat .lbl{
+    font-size:10px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .stat.confirmed .num{ color:var(--confirmed); }
+  .stat.pending .num{ color:var(--pending); }
+  .stat.declined .num{ color:var(--declined); }
+
+  /* ---------- Add form ---------- */
+  .add-card{
+    background:var(--paper);
+    border:1px solid var(--rose-line);
+    border-radius:2px;
+    padding:22px 24px;
+    margin-bottom:36px;
+    box-shadow:0 12px 30px -18px rgba(180,120,115,0.35);
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .add-card input[type=text]{
+    flex:1;
+    min-width:180px;
+    border:none;
+    border-bottom:1px solid var(--rose-line);
+    background:transparent;
+    font-family:'Cormorant Garamond', serif;
+    font-size:19px;
+    padding:8px 4px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .2s;
+  }
+  .add-card input[type=text]:focus{ border-bottom-color:var(--gold); }
+  .add-card input[type=text]::placeholder{ color:#c4b3b1; font-style:italic; }
+
+  .seg{
+    display:flex;
+    border:1px solid var(--rose-line);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .seg button{
+    border:none;
+    background:transparent;
+    padding:8px 14px;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:.15s;
+  }
+  .seg button.active[data-v="Confirmat"]{ background:var(--confirmed); color:#fff; }
+  .seg button.active[data-v="Neconfirmat"]{ background:var(--pending); color:#fff; }
+  .seg button.active[data-v="Refuzat"]{ background:var(--declined); color:#fff; }
+
+  .add-btn{
+    border:1px solid var(--gold);
+    background:var(--gold);
+    color:#fff;
+    font-family:'Jost',sans-serif;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    padding:10px 20px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:.2s;
+    white-space:nowrap;
+  }
+  .add-btn:hover{ background:#b8924d; }
+
+  /* ---------- List ---------- */
+  .list-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:16px;
+    padding:0 4px;
+  }
+  .list-head h2{
+    font-family:'Marcellus',serif;
+    font-weight:400;
+    font-size:20px;
+    margin:0;
+    letter-spacing:0.02em;
+  }
+  .count-pill{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.05em;
+  }
+
+  .guest-list{
+    background:var(--paper);
+    border:1px solid var(--rose-line);
+    border-radius:2px;
+    box-shadow:0 16px 40px -24px rgba(180,120,115,0.4);
+    overflow:hidden;
+  }
+
+  .guest-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:16px 22px;
+    border-bottom:1px solid #f1e6e5;
+    transition:background .15s;
+  }
+  .guest-row:last-child{ border-bottom:none; }
+  .guest-row:hover{ background:#fdf8f7; }
+
+  .guest-name{
+    flex:1;
+    font-family:'Cormorant Garamond', serif;
+    font-size:21px;
+    color:var(--ink);
+  }
+  .guest-name[contenteditable]:focus{
+    outline:none;
+    border-bottom:1px dashed var(--gold);
+  }
+
+  .status-badge{
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:6px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    border:1px solid transparent;
+    white-space:nowrap;
+    font-family:'Jost',sans-serif;
+    transition:.15s;
+  }
+  .status-badge.Confirmat{ background:#eef3ea; color:var(--confirmed); border-color:#d3e0ca; }
+  .status-badge.Neconfirmat{ background:#faf2e0; color:#b3893a; border-color:#ecd8a8; }
+  .status-badge.Refuzat{ background:#f7eaea; color:var(--declined); border-color:#edd2d2; }
+
+  .del-btn{
+    width:26px; height:26px;
+    border:none;
+    background:transparent;
+    color:#d4b8b6;
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    border-radius:50%;
+    transition:.15s;
+  }
+  .del-btn:hover{ background:#f7eaea; color:var(--declined); }
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+  }
+  .empty-state .glyph{
+    font-family:'Marcellus',serif;
+    font-size:32px;
+    color:var(--blush-deep);
+    margin-bottom:10px;
+  }
+  .empty-state p{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:18px;
+    margin:0;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:40px;
+    font-size:11px;
+    color:#c4b3b1;
+    letter-spacing:0.1em;
+  }
+
+  @media(max-width:560px){
+    .add-card{ flex-direction:column; align-items:stretch; }
+    .seg{ justify-content:center; }
+    .guest-row{ flex-wrap:wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Cu drag, pentru ziua noastră</div>
+    <h1>Lista Invitaților</h1>
+    <p class="subtitle">fiecare nume, un loc la masă noastră</p>
+    <div class="ornament"><span></span></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">Total</div></div>
+    <div class="stat confirmed"><div class="num" id="statConf">0</div><div class="lbl">Confirmați</div></div>
+    <div class="stat pending"><div class="num" id="statPend">0</div><div class="lbl">În așteptare</div></div>
+    <div class="stat declined"><div class="num" id="statDecl">0</div><div class="lbl">Refuzat</div></div>
+  </div>
+
+  <div class="add-card">
+    <input type="text" id="nameInput" placeholder="Numele invitatului…" />
+    <div class="seg" id="statusSeg">
+      <button data-v="Neconfirmat" class="active">neconfirmat</button>
+      <button data-v="Confirmat">confirmat</button>
+      <button data-v="Refuzat">refuzat</button>
+    </div>
+    <button class="add-btn" id="addBtn">+ Adaugă</button>
+  </div>
+
+  <div class="list-head">
+    <h2>Invitați</h2>
+    <span class="count-pill" id="listCount"></span>
+  </div>
+
+  <div class="guest-list" id="guestList"></div>
+
+  <footer>F. &amp; B. · catalog personal de nuntă</footer>
+</div>
+
+<script>
+let guests = [];
+let newStatus = 'Neconfirmat';
+
+const listEl = document.getElementById('guestList');
+const nameInput = document.getElementById('nameInput');
+const seg = document.getElementById('statusSeg');
+
+seg.addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  [...seg.children].forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  newStatus = btn.dataset.v;
+});
+
+document.getElementById('addBtn').addEventListener('click', addGuest);
+nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addGuest(); });
+
+function addGuest(){
+  const name = nameInput.value.trim();
+  if(!name) return;
+  guests.push({ id: Date.now()+Math.random(), name, status: newStatus });
+  nameInput.value='';
+  render();
+  nameInput.focus();
+}
+
+function cycleStatus(s){
+  return s==='Neconfirmat' ? 'Confirmat' : s==='Confirmat' ? 'Refuzat' : 'Neconfirmat';
+}
+
+function render(){
+  document.getElementById('statTotal').textContent = guests.length;
+  document.getElementById('statConf').textContent = guests.filter(g=>g.status==='Confirmat').length;
+  document.getElementById('statPend').textContent = guests.filter(g=>g.status==='Neconfirmat').length;
+  document.getElementById('statDecl').textContent = guests.filter(g=>g.status==='Refuzat').length;
+  document.getElementById('listCount').textContent = guests.length + (guests.length===1 ? ' nume' : ' nume');
+
+  if(guests.length===0){
+    listEl.innerHTML = `<div class="empty-state"><div class="glyph">∗</div><p>Niciun invitat încă. Adaugă primul nume mai sus.</p></div>`;
+    return;
+  }
+
+  listEl.innerHTML = guests.map(g => `
+    <div class="guest-row" data-id="${g.id}">
+      <div class="guest-name" contenteditable="true" data-id="${g.id}">${escapeHtml(g.name)}</div>
+      <div class="status-badge ${g.status}" data-id="${g.id}">${g.status}</div>
+      <button class="del-btn" data-id="${g.id}" title="Șterge">×</button>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('.status-badge').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.id;
+      const g = guests.find(x => String(x.id)===id);
+      g.status = cycleStatus(g.status);
+      render();
+    });
+  });
+
+  listEl.querySelectorAll('.del-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.id;
+      guests = guests.filter(x => String(x.id)!==id);
+      render();
+    });
+  });
+
+  listEl.querySelectorAll('.guest-name').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      const id = el.dataset.id;
+      const g = guests.find(x => String(x.id)===id);
+      const txt = el.textContent.trim();
+      if(txt) g.name = txt; else el.textContent = g.name;
+    });
+    el.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){ e.preventDefault(); el.blur(); }
+    });
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+render();
+</script>
+</body>
+</html>
