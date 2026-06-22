@@ -37,7 +37,6 @@
 
   .wrap{ max-width:900px; margin:0 auto; }
 
-  /* ---------- Header ---------- */
   header{
     text-align:center;
     margin-bottom:40px;
@@ -90,7 +89,6 @@
     background:var(--blush-deep);
   }
 
-  /* ---------- Stats ---------- */
   .stats{
     display:flex;
     justify-content:center;
@@ -116,7 +114,6 @@
   .stat.declined .num{ color:var(--declined); }
   .stat.persons .num{ color:var(--couple); }
 
-  /* ---------- Add form ---------- */
   .add-card{
     background:var(--paper);
     border:1px solid var(--rose-line);
@@ -166,8 +163,6 @@
   .seg button.active[data-v="Confirmat"]{ background:var(--confirmed); color:#fff; }
   .seg button.active[data-v="Neconfirmat"]{ background:var(--pending); color:#fff; }
   .seg button.active[data-v="Refuzat"]{ background:var(--declined); color:#fff; }
-
-  /* type toggle */
   .type-seg button.active[data-t="Singur"]{ background:var(--ink-soft); color:#fff; }
   .type-seg button.active[data-t="Cuplu"]{ background:var(--couple); color:#fff; }
 
@@ -186,8 +181,8 @@
     white-space:nowrap;
   }
   .add-btn:hover{ background:#b8924d; }
+  .add-btn:disabled{ opacity:.5; cursor:default; }
 
-  /* ---------- List ---------- */
   .list-head{
     display:flex;
     justify-content:space-between;
@@ -300,6 +295,15 @@
     margin:0;
   }
 
+  .loading-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:18px;
+  }
+
   footer{
     text-align:center;
     margin-top:40px;
@@ -326,11 +330,11 @@
   </header>
 
   <div class="stats">
-    <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">Invitații</div></div>
-    <div class="stat persons"><div class="num" id="statPersons">0</div><div class="lbl">Persoane</div></div>
-    <div class="stat confirmed"><div class="num" id="statConf">0</div><div class="lbl">Confirmați</div></div>
-    <div class="stat pending"><div class="num" id="statPend">0</div><div class="lbl">În așteptare</div></div>
-    <div class="stat declined"><div class="num" id="statDecl">0</div><div class="lbl">Refuzat</div></div>
+    <div class="stat"><div class="num" id="statTotal">—</div><div class="lbl">Invitații</div></div>
+    <div class="stat persons"><div class="num" id="statPersons">—</div><div class="lbl">Persoane</div></div>
+    <div class="stat confirmed"><div class="num" id="statConf">—</div><div class="lbl">Confirmați</div></div>
+    <div class="stat pending"><div class="num" id="statPend">—</div><div class="lbl">În așteptare</div></div>
+    <div class="stat declined"><div class="num" id="statDecl">—</div><div class="lbl">Refuzat</div></div>
   </div>
 
   <div class="add-card">
@@ -352,18 +356,37 @@
     <span class="count-pill" id="listCount"></span>
   </div>
 
-  <div class="guest-list" id="guestList"></div>
+  <div class="guest-list" id="guestList">
+    <div class="loading-state">Se încarcă lista…</div>
+  </div>
 
   <footer>F. &amp; B. · catalog personal de nuntă</footer>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCkNjLOjPDzhQJYnx3PpeO3WNvHCHnCDbQ",
+  authDomain: "invitatii-973bf.firebaseapp.com",
+  projectId: "invitatii-973bf",
+  storageBucket: "invitatii-973bf.firebasestorage.app",
+  messagingSenderId: "668840687838",
+  appId: "1:668840687838:web:b0c82e3426217a7d146a4f",
+  measurementId: "G-7MM78DX54T"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const col = db.collection('guests');
+
 let guests = [];
 let newStatus = 'Neconfirmat';
 let newType = 'Singur';
 
 const listEl = document.getElementById('guestList');
 const nameInput = document.getElementById('nameInput');
+const addBtn = document.getElementById('addBtn');
 const seg = document.getElementById('statusSeg');
 const typeSeg = document.getElementById('typeSeg');
 
@@ -383,29 +406,39 @@ seg.addEventListener('click', e=>{
   newStatus = btn.dataset.v;
 });
 
-document.getElementById('addBtn').addEventListener('click', addGuest);
+addBtn.addEventListener('click', addGuest);
 nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addGuest(); });
 
 function addGuest(){
   const name = nameInput.value.trim();
   if(!name) return;
-  guests.push({ id: Date.now()+Math.random(), name, status: newStatus, type: newType });
-  nameInput.value='';
-  render();
-  nameInput.focus();
+  addBtn.disabled = true;
+  col.add({
+    name,
+    status: newStatus,
+    type: newType,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(()=>{
+    nameInput.value = '';
+    nameInput.focus();
+    addBtn.disabled = false;
+  }).catch(()=>{ addBtn.disabled = false; });
 }
 
 function cycleStatus(s){
   return s==='Neconfirmat' ? 'Confirmat' : s==='Confirmat' ? 'Refuzat' : 'Neconfirmat';
 }
-
 function cycleType(t){
   return t==='Singur' ? 'Cuplu' : 'Singur';
 }
-
 function personCount(g){
   return g.type==='Cuplu' ? 2 : 1;
 }
+
+col.orderBy('createdAt').onSnapshot(snapshot=>{
+  guests = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  render();
+});
 
 function render(){
   const total = guests.length;
@@ -415,17 +448,17 @@ function render(){
   document.getElementById('statConf').textContent = guests.filter(g=>g.status==='Confirmat').length;
   document.getElementById('statPend').textContent = guests.filter(g=>g.status==='Neconfirmat').length;
   document.getElementById('statDecl').textContent = guests.filter(g=>g.status==='Refuzat').length;
-  document.getElementById('listCount').textContent = total + (total===1 ? ' invitat' : ' invitați') + ' · ' + persons + ' persoane';
+  document.getElementById('listCount').textContent = total + (total===1?' invitat':' invitați') + ' · ' + persons + ' persoane';
 
   if(guests.length===0){
     listEl.innerHTML = `<div class="empty-state"><div class="glyph">∗</div><p>Niciun invitat încă. Adaugă primul nume mai sus.</p></div>`;
     return;
   }
 
-  listEl.innerHTML = guests.map(g => `
+  listEl.innerHTML = guests.map(g=>`
     <div class="guest-row" data-id="${g.id}">
       <div class="guest-name" contenteditable="true" data-id="${g.id}">${escapeHtml(g.name)}</div>
-      <div class="type-badge ${g.type}" data-id="${g.id}">${g.type==='Cuplu' ? '♡ Cuplu' : 'Singur'}</div>
+      <div class="type-badge ${g.type}" data-id="${g.id}">${g.type==='Cuplu'?'♡ Cuplu':'Singur'}</div>
       <div class="status-badge ${g.status}" data-id="${g.id}">${g.status}</div>
       <button class="del-btn" data-id="${g.id}" title="Șterge">×</button>
     </div>
@@ -433,33 +466,30 @@ function render(){
 
   listEl.querySelectorAll('.type-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
-      const g = guests.find(x => String(x.id)===el.dataset.id);
-      g.type = cycleType(g.type);
-      render();
+      const g = guests.find(x=>x.id===el.dataset.id);
+      col.doc(g.id).update({ type: cycleType(g.type) });
     });
   });
 
   listEl.querySelectorAll('.status-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
-      const g = guests.find(x => String(x.id)===el.dataset.id);
-      g.status = cycleStatus(g.status);
-      render();
+      const g = guests.find(x=>x.id===el.dataset.id);
+      col.doc(g.id).update({ status: cycleStatus(g.status) });
     });
   });
 
   listEl.querySelectorAll('.del-btn').forEach(el=>{
     el.addEventListener('click', ()=>{
-      const id = el.dataset.id;
-      guests = guests.filter(x => String(x.id)!==id);
-      render();
+      col.doc(el.dataset.id).delete();
     });
   });
 
   listEl.querySelectorAll('.guest-name').forEach(el=>{
     el.addEventListener('blur', ()=>{
-      const g = guests.find(x => String(x.id)===el.dataset.id);
+      const g = guests.find(x=>x.id===el.dataset.id);
       const txt = el.textContent.trim();
-      if(txt) g.name = txt; else el.textContent = g.name;
+      if(txt && txt!==g.name) col.doc(g.id).update({ name: txt });
+      else el.textContent = g.name;
     });
     el.addEventListener('keydown', e=>{
       if(e.key==='Enter'){ e.preventDefault(); el.blur(); }
@@ -472,8 +502,6 @@ function escapeHtml(str){
   d.textContent = str;
   return d.innerHTML;
 }
-
-render();
 </script>
 </body>
 </html>
