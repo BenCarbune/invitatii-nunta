@@ -19,6 +19,7 @@
     --declined:#c98a8a;
     --pending:#d8b96a;
     --couple:#a49abb;
+    --absent:#7a9ab5;
   }
 
   *{ box-sizing:border-box; }
@@ -264,6 +265,7 @@
   .stat.pending .num{ color:var(--pending); }
   .stat.declined .num{ color:var(--declined); }
   .stat.persons .num{ color:var(--couple); }
+  .stat.absent .num{ color:var(--absent); }
 
   @keyframes numPop{
     0%{ transform:scale(1); }
@@ -329,6 +331,7 @@
   .seg button.active[data-v="Refuzat"]{ background:var(--declined); color:#fff; }
   .type-seg button.active[data-t="Singur"]{ background:var(--ink-soft); color:#fff; }
   .type-seg button.active[data-t="Cuplu"]{ background:var(--couple); color:#fff; }
+  .seg button.active[data-v="Fără prezență"]{ background:var(--absent); color:#fff; }
 
   .add-btn{
     border:1px solid var(--gold);
@@ -462,6 +465,7 @@
   .status-badge.Confirmat{ background:#eef3ea; color:var(--confirmed); border-color:#d3e0ca; }
   .status-badge.Neconfirmat{ background:#faf2e0; color:#b3893a; border-color:#ecd8a8; }
   .status-badge.Refuzat{ background:#f7eaea; color:var(--declined); border-color:#edd2d2; }
+  .status-badge.fara-prezenta{ background:#e8f0f7; color:var(--absent); border-color:#c5d5e4; }
 
   .del-btn{
     width:26px; height:26px;
@@ -534,7 +538,7 @@
     /* ── Stats: 6-col grid, 2 rows ── */
     .stats{
       display:grid;
-      grid-template-columns:repeat(6,1fr);
+      grid-template-columns:repeat(3,1fr);
       gap:0;
       background:var(--paper);
       border:1px solid var(--rose-line);
@@ -548,11 +552,11 @@
       padding:16px 8px;
       text-align:center;
     }
-    .stat:nth-child(1){ grid-column:span 3; border-right:1px solid #f1e6e5; border-bottom:1px solid #f1e6e5; }
-    .stat:nth-child(2){ grid-column:span 3; border-bottom:1px solid #f1e6e5; }
-    .stat:nth-child(3){ grid-column:span 2; border-right:1px solid #f1e6e5; }
-    .stat:nth-child(4){ grid-column:span 2; border-right:1px solid #f1e6e5; }
-    .stat:nth-child(5){ grid-column:span 2; }
+    .stat:nth-child(1){ border-right:1px solid #f1e6e5; border-bottom:1px solid #f1e6e5; }
+    .stat:nth-child(2){ border-right:1px solid #f1e6e5; border-bottom:1px solid #f1e6e5; }
+    .stat:nth-child(3){ border-bottom:1px solid #f1e6e5; }
+    .stat:nth-child(4){ border-right:1px solid #f1e6e5; }
+    .stat:nth-child(5){ border-right:1px solid #f1e6e5; }
     .stat .num{ font-size:22px; }
     .stat .lbl{ font-size:9px; letter-spacing:0.12em; }
 
@@ -672,6 +676,7 @@
     <div class="stat confirmed"><div class="num" id="statConf">—</div><div class="lbl">Confirmați</div></div>
     <div class="stat pending"><div class="num" id="statPend">—</div><div class="lbl">În așteptare</div></div>
     <div class="stat declined"><div class="num" id="statDecl">—</div><div class="lbl">Refuzat</div></div>
+    <div class="stat absent"><div class="num" id="statAbsent">—</div><div class="lbl">Fără prezență</div></div>
   </div>
 
   <div class="add-card">
@@ -684,6 +689,7 @@
       <button data-v="Neconfirmat" class="active">neconfirmat</button>
       <button data-v="Confirmat">confirmat</button>
       <button data-v="Refuzat">refuzat</button>
+      <button data-v="Fără prezență">fără prez.</button>
     </div>
     <button class="add-btn" id="addBtn">+ Adaugă</button>
   </div>
@@ -795,7 +801,9 @@ function deleteGuest(id){
 }
 
 /* ── Helpers ── */
-function cycleStatus(s){ return s==='Neconfirmat'?'Confirmat':s==='Confirmat'?'Refuzat':'Neconfirmat'; }
+const STATUS_CYCLE = ['Neconfirmat','Confirmat','Refuzat','Fără prezență'];
+function cycleStatus(s){ const i = STATUS_CYCLE.indexOf(s); return STATUS_CYCLE[(i+1) % STATUS_CYCLE.length]; }
+function statusClass(s){ return s==='Fără prezență'?'fara-prezenta':s; }
 function cycleType(t){ return t==='Singur'?'Cuplu':'Singur'; }
 function personCount(g){ return g.type==='Cuplu'?2:1; }
 
@@ -843,6 +851,7 @@ function render(){
   animateStat('statConf',    visible.filter(g=>g.status==='Confirmat').length);
   animateStat('statPend',    visible.filter(g=>g.status==='Neconfirmat').length);
   animateStat('statDecl',    visible.filter(g=>g.status==='Refuzat').length);
+  animateStat('statAbsent',  visible.filter(g=>g.status==='Fără prezență').length);
 
   const countEl = document.getElementById('listCount');
   countEl.textContent = total + (total===1?' invitat':' invitați') + ' · ' + persons + ' persoane';
@@ -861,7 +870,7 @@ function render(){
     <div class="guest-row row-enter" data-id="${g.id}" style="--row-delay:${delay}ms">
       <div class="guest-name" contenteditable="true" data-id="${g.id}">${escapeHtml(g.name)}</div>
       <div class="type-badge ${g.type}" data-id="${g.id}">${g.type==='Cuplu'?'♡ Cuplu':'Singur'}</div>
-      <div class="status-badge ${g.status}" data-id="${g.id}">${g.status}</div>
+      <div class="status-badge ${statusClass(g.status)}" data-id="${g.id}">${g.status}</div>
       <button class="del-btn" data-id="${g.id}" title="Șterge">×</button>
     </div>`;
   }).join('');
