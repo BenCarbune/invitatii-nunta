@@ -354,6 +354,58 @@
   .add-btn:disabled{ opacity:.5; cursor:default; transform:none; }
 
   /* ================================================
+     SEARCH
+  ================================================ */
+  .search-wrap{
+    position:relative;
+    margin-bottom:16px;
+  }
+  .search-icon{
+    position:absolute;
+    left:14px; top:50%;
+    transform:translateY(-50%);
+    color:var(--blush-deep);
+    font-size:15px;
+    pointer-events:none;
+  }
+  .search-input{
+    width:100%;
+    border:1px solid var(--rose-line);
+    border-radius:2px;
+    background:var(--paper);
+    font-family:'Cormorant Garamond', serif;
+    font-size:18px;
+    color:var(--ink);
+    padding:11px 40px 11px 38px;
+    outline:none;
+    box-shadow:0 4px 14px -10px rgba(180,120,115,0.3);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .search-input:focus{
+    border-color:var(--blush-deep);
+    box-shadow:0 6px 20px -10px rgba(180,120,115,0.4);
+  }
+  .search-input::placeholder{ color:#c4b3b1; font-style:italic; }
+  .search-clear{
+    position:absolute;
+    right:10px; top:50%;
+    transform:translateY(-50%);
+    width:26px; height:26px;
+    border:none;
+    background:transparent;
+    color:#c4b3b1;
+    font-size:18px;
+    cursor:pointer;
+    border-radius:50%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .search-clear.visible{ display:flex; }
+  .search-clear:hover{ background:#f7eaea; color:var(--declined); }
+
+  /* ================================================
      LIST
   ================================================ */
   .list-head{
@@ -779,6 +831,12 @@
     <button class="add-btn" id="addBtn">+ Adaugă</button>
   </div>
 
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Caută după nume…" autocomplete="off" />
+    <button class="search-clear" id="searchClear">×</button>
+  </div>
+
   <div class="list-head">
     <h2>Invitați</h2>
     <span class="count-pill" id="listCount"></span>
@@ -813,16 +871,33 @@ let newStatus = 'Neconfirmat';
 let newType = 'Singur';
 let firstRender = true;
 let editingId = null;
+let searchQuery = '';
 const animatedIds = new Set();
 const deletingIds = new Set();
 
 /* ── DOM refs ── */
-const listEl   = document.getElementById('guestList');
-const nameInput = document.getElementById('nameInput');
-const addBtn   = document.getElementById('addBtn');
-const seg      = document.getElementById('statusSeg');
-const typeSeg  = document.getElementById('typeSeg');
-const loader   = document.getElementById('loader');
+const listEl     = document.getElementById('guestList');
+const nameInput  = document.getElementById('nameInput');
+const addBtn     = document.getElementById('addBtn');
+const seg        = document.getElementById('statusSeg');
+const typeSeg    = document.getElementById('typeSeg');
+const loader     = document.getElementById('loader');
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+
+searchInput.addEventListener('input', ()=>{
+  searchQuery = searchInput.value.trim().toLowerCase();
+  searchClear.classList.toggle('visible', searchQuery.length > 0);
+  editingId = null;
+  render();
+});
+searchClear.addEventListener('click', ()=>{
+  searchInput.value = '';
+  searchQuery = '';
+  searchClear.classList.remove('visible');
+  searchInput.focus();
+  render();
+});
 
 /* ── Loader: show for at least 1 s, then reveal page ── */
 let dataReady = false;
@@ -928,7 +1003,10 @@ col.orderBy('createdAt').onSnapshot(snapshot=>{
 
 /* ── Render ── */
 function render(){
-  const visible = guests.filter(g=>!deletingIds.has(g.id));
+  const visible = guests.filter(g=>
+    !deletingIds.has(g.id) &&
+    (!searchQuery || g.name.toLowerCase().includes(searchQuery))
+  );
   const total   = visible.length;
   const persons = visible.reduce((s,g)=>s+personCount(g), 0);
 
@@ -943,7 +1021,8 @@ function render(){
   countEl.textContent = total + (total===1?' invitat':' invitați') + ' · ' + persons + ' persoane';
 
   if(visible.length===0){
-    listEl.innerHTML = `<div class="empty-state"><div class="glyph">∗</div><p>Niciun invitat încă. Adaugă primul nume mai sus.</p></div>`;
+    const msg = searchQuery ? `Niciun rezultat pentru „${searchQuery}".` : 'Niciun invitat încă. Adaugă primul nume mai sus.';
+    listEl.innerHTML = `<div class="empty-state"><div class="glyph">∗</div><p>${msg}</p></div>`;
     firstRender = false;
     return;
   }
