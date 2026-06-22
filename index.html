@@ -639,6 +639,246 @@
   }
 
   /* ================================================
+     VIEW NAV
+  ================================================ */
+  .view-nav{
+    display:flex;
+    border:1px solid var(--rose-line);
+    border-radius:20px;
+    overflow:hidden;
+    width:fit-content;
+    margin:0 auto 32px;
+  }
+  .view-btn{
+    border:none;
+    background:transparent;
+    padding:10px 28px;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space:nowrap;
+  }
+  .view-btn.active{ background:var(--ink); color:#fff; }
+
+  /* ================================================
+     TABLES VIEW
+  ================================================ */
+  #viewTables{ display:none; }
+
+  .tables-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:24px;
+  }
+  .tables-bar h2{
+    font-family:'Marcellus',serif;
+    font-weight:400;
+    font-size:20px;
+    margin:0;
+    letter-spacing:0.02em;
+  }
+  .add-table-btn{
+    border:1px solid var(--gold);
+    background:var(--gold);
+    color:#fff;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space:nowrap;
+  }
+  .add-table-btn:hover{ background:#b8924d; }
+  .add-table-btn:active{ transform:scale(0.96); }
+
+  /* Unassigned section */
+  .unassigned-section{
+    background:var(--paper);
+    border:1px solid var(--rose-line);
+    border-radius:2px;
+    box-shadow:0 8px 24px -16px rgba(180,120,115,0.3);
+    margin-bottom:28px;
+    overflow:hidden;
+  }
+  .unassigned-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 20px;
+    border-bottom:1px solid #f1e6e5;
+  }
+  .unassigned-title{
+    font-family:'Marcellus',serif;
+    font-size:16px;
+    color:var(--ink);
+  }
+  .unassigned-badge{
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    background:#f2efed;
+    border:1px solid #e0d6d4;
+    border-radius:20px;
+    padding:3px 10px;
+  }
+  .unassigned-list{
+    padding:12px 16px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .unassigned-chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#fdf8f7;
+    border:1px solid #f1e6e5;
+    border-radius:2px;
+    padding:8px 12px;
+    animation: rowIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .chip-name{
+    font-family:'Cormorant Garamond',serif;
+    font-size:17px;
+    color:var(--ink);
+  }
+  .assign-select{
+    border:1px solid var(--rose-line);
+    border-radius:20px;
+    background:transparent;
+    font-family:'Jost',sans-serif;
+    font-size:10px;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    padding:5px 10px;
+    outline:none;
+    cursor:pointer;
+    transition: border-color 0.2s;
+  }
+  .assign-select:focus{ border-color:var(--gold); }
+  .all-assigned{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:16px;
+    color:var(--confirmed);
+    padding:8px 4px;
+    margin:0;
+  }
+
+  /* Tables grid */
+  .tables-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+    gap:16px;
+  }
+  .table-card{
+    background:var(--paper);
+    border:1px solid var(--rose-line);
+    border-radius:2px;
+    box-shadow:0 8px 24px -16px rgba(180,120,115,0.3);
+    overflow:hidden;
+    animation: rowIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .table-card-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border-bottom:1px solid #f1e6e5;
+    background:#fdf8f7;
+  }
+  .table-name{
+    flex:1;
+    font-family:'Marcellus',serif;
+    font-size:16px;
+    color:var(--ink);
+    outline:none;
+    min-width:0;
+  }
+  .table-name:focus{ border-bottom:1px dashed var(--gold); }
+  .table-persons-count{
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    background:#f2efed;
+    border:1px solid #e0d6d4;
+    border-radius:20px;
+    padding:3px 10px;
+  }
+  .table-del-btn{
+    width:24px; height:24px;
+    border:none;
+    background:transparent;
+    color:#d4b8b6;
+    font-size:16px;
+    cursor:pointer;
+    border-radius:50%;
+    transition: background 0.15s, color 0.15s, transform 0.1s;
+    flex-shrink:0;
+  }
+  .table-del-btn:hover{ background:#f7eaea; color:var(--declined); }
+  .table-del-btn:active{ transform:scale(0.88); }
+
+  .table-guests-list{ padding:8px 0; }
+  .table-guest-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 16px;
+    border-bottom:1px solid #f8f1f0;
+    transition: background 0.15s;
+  }
+  .table-guest-row:last-child{ border-bottom:none; }
+  .table-guest-row:hover{ background:#fdf8f7; }
+  .tg-name{
+    flex:1;
+    font-family:'Cormorant Garamond',serif;
+    font-size:18px;
+    color:var(--ink);
+  }
+  .unassign-btn{
+    width:22px; height:22px;
+    border:none;
+    background:transparent;
+    color:#d4b8b6;
+    font-size:15px;
+    cursor:pointer;
+    border-radius:50%;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink:0;
+  }
+  .unassign-btn:hover{ background:#f7eaea; color:var(--declined); }
+  .table-empty{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:15px;
+    color:var(--ink-soft);
+    padding:14px 16px;
+    margin:0;
+  }
+  .no-tables{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--ink-soft);
+    text-align:center;
+    padding:40px 20px;
+    grid-column:1/-1;
+    margin:0;
+  }
+
+  /* ================================================
      FOOTER
   ================================================ */
   footer{
@@ -807,6 +1047,12 @@
     <div class="ornament"><span></span></div>
   </header>
 
+  <nav class="view-nav">
+    <button class="view-btn active" data-view="guests">Invitați</button>
+    <button class="view-btn" data-view="tables">Mese</button>
+  </nav>
+
+  <div id="viewGuests">
   <div class="stats">
     <div class="stat"><div class="num" id="statTotal">—</div><div class="lbl">Invitații</div></div>
     <div class="stat persons"><div class="num" id="statPersons">—</div><div class="lbl">Persoane</div></div>
@@ -845,6 +1091,23 @@
   <div class="guest-list" id="guestList">
     <div class="loading-state">Se încarcă lista…</div>
   </div>
+
+  </div><!-- /viewGuests -->
+
+  <div id="viewTables">
+    <div class="tables-bar">
+      <h2>Plasament Mese</h2>
+      <button class="add-table-btn" id="addTableBtn">+ Masă nouă</button>
+    </div>
+    <div class="unassigned-section">
+      <div class="unassigned-head">
+        <span class="unassigned-title">Neasignați</span>
+        <span class="unassigned-badge" id="unassignedBadge">0</span>
+      </div>
+      <div class="unassigned-list" id="unassignedList"></div>
+    </div>
+    <div class="tables-grid" id="tablesGrid"></div>
+  </div><!-- /viewTables -->
 
   <footer>D. &amp; B. · catalog personal de nuntă</footer>
 </div>
@@ -1133,6 +1396,110 @@ function escapeHtml(str){
   const d = document.createElement('div');
   d.textContent = str;
   return d.innerHTML;
+}
+
+/* ── View navigation ── */
+let currentView = 'guests';
+document.querySelectorAll('.view-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    currentView = btn.dataset.view;
+    document.querySelectorAll('.view-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===currentView));
+    document.getElementById('viewGuests').style.display = currentView==='guests' ? '' : 'none';
+    document.getElementById('viewTables').style.display = currentView==='tables' ? '' : 'none';
+    if(currentView==='tables') renderTables();
+  });
+});
+
+/* ── Tables Firestore ── */
+let tables = [];
+const tablesCol = db.collection('tables');
+
+tablesCol.orderBy('createdAt').onSnapshot(snapshot=>{
+  tables = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  if(currentView==='tables') renderTables();
+});
+
+document.getElementById('addTableBtn').addEventListener('click', ()=>{
+  tablesCol.add({ name: `Masa ${tables.length+1}`, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+});
+
+/* ── Render tables view ── */
+function renderTables(){
+  const unassigned = guests.filter(g=>!g.tableId && !deletingIds.has(g.id));
+  const unassignedPersons = unassigned.reduce((s,g)=>s+personCount(g),0);
+
+  document.getElementById('unassignedBadge').textContent =
+    unassigned.length + ' inv. · ' + unassignedPersons + ' pers.';
+
+  const ul = document.getElementById('unassignedList');
+  if(unassigned.length===0){
+    ul.innerHTML = '<p class="all-assigned">Toți invitații sunt asignați ✓</p>';
+  } else {
+    ul.innerHTML = unassigned.map(g=>`
+      <div class="unassigned-chip">
+        <span class="chip-name">${escapeHtml(g.name)}</span>
+        <span class="type-badge ${g.type}" style="font-size:9px;padding:3px 9px;">${g.type==='Cuplu'?'♡ Cuplu':'Singur'}</span>
+        <select class="assign-select" data-guest-id="${g.id}">
+          <option value="">Masă…</option>
+          ${tables.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('')}
+        </select>
+      </div>`).join('');
+
+    ul.querySelectorAll('.assign-select').forEach(sel=>{
+      sel.addEventListener('change', ()=>{
+        if(sel.value) col.doc(sel.dataset.guestId).update({ tableId: sel.value });
+      });
+    });
+  }
+
+  const grid = document.getElementById('tablesGrid');
+  if(tables.length===0){
+    grid.innerHTML = '<p class="no-tables">Nicio masă. Apasă „+ Masă nouă" pentru a începe.</p>';
+    return;
+  }
+
+  grid.innerHTML = tables.map(t=>{
+    const tg = guests.filter(g=>g.tableId===t.id && !deletingIds.has(g.id));
+    const pers = tg.reduce((s,g)=>s+personCount(g),0);
+    return `
+    <div class="table-card" data-id="${t.id}">
+      <div class="table-card-head">
+        <span class="table-name" contenteditable="true" data-id="${t.id}">${escapeHtml(t.name)}</span>
+        <span class="table-persons-count">${tg.length} inv. · ${pers} pers.</span>
+        <button class="table-del-btn" data-id="${t.id}">×</button>
+      </div>
+      ${tg.length===0
+        ? '<p class="table-empty">Niciun invitat asignat.</p>'
+        : `<div class="table-guests-list">${tg.map(g=>`
+            <div class="table-guest-row">
+              <span class="tg-name">${escapeHtml(g.name)}</span>
+              <span class="type-badge ${g.type}" style="font-size:9px;padding:3px 9px;">${g.type==='Cuplu'?'♡ Cuplu':'Singur'}</span>
+              <button class="unassign-btn" data-guest-id="${g.id}">×</button>
+            </div>`).join('')}
+          </div>`}
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.table-name').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      const txt = el.textContent.trim();
+      if(txt) tablesCol.doc(el.dataset.id).update({ name: txt });
+      else el.textContent = tables.find(t=>t.id===el.dataset.id)?.name||'';
+    });
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+  });
+
+  grid.querySelectorAll('.table-del-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      guests.filter(g=>g.tableId===id).forEach(g=>col.doc(g.id).update({ tableId: null }));
+      tablesCol.doc(id).delete();
+    });
+  });
+
+  grid.querySelectorAll('.unassign-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>col.doc(btn.dataset.guestId).update({ tableId: null }));
+  });
 }
 </script>
 </body>
