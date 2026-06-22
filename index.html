@@ -520,12 +520,107 @@
   }
 
   /* ================================================
-     RESPONSIVE
+     RESPONSIVE — MOBILE
   ================================================ */
-  @media(max-width:560px){
-    .add-card{ flex-direction:column; align-items:stretch; }
-    .seg{ justify-content:center; }
-    .guest-row{ flex-wrap:wrap; }
+  @media(max-width:600px){
+    body{ padding:28px 14px 72px; }
+
+    header{ margin-bottom:28px; }
+    .eyebrow{ font-size:10px; letter-spacing:0.25em; }
+    h1{ font-size:clamp(30px,8vw,42px); }
+    .subtitle{ font-size:17px; }
+    .ornament{ margin-top:16px; }
+
+    /* ── Stats: 6-col grid, 2 rows ── */
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(6,1fr);
+      gap:0;
+      background:var(--paper);
+      border:1px solid var(--rose-line);
+      border-radius:2px;
+      box-shadow:0 8px 24px -16px rgba(180,120,115,0.35);
+      overflow:hidden;
+      padding:0;
+      margin-bottom:20px;
+    }
+    .stat{
+      padding:16px 8px;
+      text-align:center;
+    }
+    .stat:nth-child(1){ grid-column:span 3; border-right:1px solid #f1e6e5; border-bottom:1px solid #f1e6e5; }
+    .stat:nth-child(2){ grid-column:span 3; border-bottom:1px solid #f1e6e5; }
+    .stat:nth-child(3){ grid-column:span 2; border-right:1px solid #f1e6e5; }
+    .stat:nth-child(4){ grid-column:span 2; border-right:1px solid #f1e6e5; }
+    .stat:nth-child(5){ grid-column:span 2; }
+    .stat .num{ font-size:22px; }
+    .stat .lbl{ font-size:9px; letter-spacing:0.12em; }
+
+    /* ── Add card ── */
+    .add-card{
+      flex-direction:column;
+      align-items:stretch;
+      gap:14px;
+      padding:18px 16px;
+      margin-bottom:24px;
+    }
+    .add-card input[type=text]{
+      min-width:0;
+      width:100%;
+      font-size:20px;
+      padding:10px 6px;
+    }
+    .seg button{
+      flex:1;
+      padding:12px 8px;
+    }
+    .add-btn{
+      width:100%;
+      padding:15px 20px;
+      font-size:13px;
+      border-radius:4px;
+    }
+
+    /* ── List head ── */
+    .list-head{ margin-bottom:10px; }
+    .list-head h2{ font-size:18px; }
+    .count-pill{ font-size:10px; }
+
+    /* ── Guest rows: name + delete on top, badges below ── */
+    .guest-row{
+      flex-wrap:wrap;
+      padding:14px 16px;
+      gap:0;
+      row-gap:0;
+    }
+    .guest-name{
+      flex:1 0 calc(100% - 44px);
+      font-size:20px;
+      padding-right:6px;
+    }
+    .del-btn{
+      flex:0 0 40px;
+      width:40px; height:40px;
+      font-size:20px;
+      align-self:flex-start;
+      margin-top:-6px;
+      margin-right:-6px;
+    }
+    .type-badge{
+      margin-top:10px;
+      margin-right:8px;
+      padding:6px 14px;
+      font-size:10px;
+    }
+    .status-badge{
+      margin-top:10px;
+      padding:6px 14px;
+      font-size:10px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state{ padding:44px 16px; }
+    .empty-state p{ font-size:16px; }
   }
 
   /* ================================================
