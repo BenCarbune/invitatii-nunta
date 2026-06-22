@@ -18,6 +18,7 @@
     --confirmed:#9aab87;
     --declined:#c98a8a;
     --pending:#d8b96a;
+    --couple:#a49abb;
   }
 
   *{box-sizing:border-box;}
@@ -113,6 +114,7 @@
   .stat.confirmed .num{ color:var(--confirmed); }
   .stat.pending .num{ color:var(--pending); }
   .stat.declined .num{ color:var(--declined); }
+  .stat.persons .num{ color:var(--couple); }
 
   /* ---------- Add form ---------- */
   .add-card{
@@ -164,6 +166,10 @@
   .seg button.active[data-v="Confirmat"]{ background:var(--confirmed); color:#fff; }
   .seg button.active[data-v="Neconfirmat"]{ background:var(--pending); color:#fff; }
   .seg button.active[data-v="Refuzat"]{ background:var(--declined); color:#fff; }
+
+  /* type toggle */
+  .type-seg button.active[data-t="Singur"]{ background:var(--ink-soft); color:#fff; }
+  .type-seg button.active[data-t="Cuplu"]{ background:var(--couple); color:#fff; }
 
   .add-btn{
     border:1px solid var(--gold);
@@ -231,6 +237,21 @@
     outline:none;
     border-bottom:1px dashed var(--gold);
   }
+
+  .type-badge{
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:5px 12px;
+    border-radius:20px;
+    cursor:pointer;
+    white-space:nowrap;
+    font-family:'Jost',sans-serif;
+    transition:.15s;
+    border:1px solid transparent;
+  }
+  .type-badge.Singur{ background:#f2efed; color:var(--ink-soft); border-color:#e0d6d4; }
+  .type-badge.Cuplu{ background:#eeebf5; color:var(--couple); border-color:#d8d1ea; }
 
   .status-badge{
     font-size:10px;
@@ -305,7 +326,8 @@
   </header>
 
   <div class="stats">
-    <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">Total</div></div>
+    <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">Invitații</div></div>
+    <div class="stat persons"><div class="num" id="statPersons">0</div><div class="lbl">Persoane</div></div>
     <div class="stat confirmed"><div class="num" id="statConf">0</div><div class="lbl">Confirmați</div></div>
     <div class="stat pending"><div class="num" id="statPend">0</div><div class="lbl">În așteptare</div></div>
     <div class="stat declined"><div class="num" id="statDecl">0</div><div class="lbl">Refuzat</div></div>
@@ -313,6 +335,10 @@
 
   <div class="add-card">
     <input type="text" id="nameInput" placeholder="Numele invitatului…" />
+    <div class="seg type-seg" id="typeSeg">
+      <button data-t="Singur" class="active">singur</button>
+      <button data-t="Cuplu">cuplu</button>
+    </div>
     <div class="seg" id="statusSeg">
       <button data-v="Neconfirmat" class="active">neconfirmat</button>
       <button data-v="Confirmat">confirmat</button>
@@ -334,10 +360,20 @@
 <script>
 let guests = [];
 let newStatus = 'Neconfirmat';
+let newType = 'Singur';
 
 const listEl = document.getElementById('guestList');
 const nameInput = document.getElementById('nameInput');
 const seg = document.getElementById('statusSeg');
+const typeSeg = document.getElementById('typeSeg');
+
+typeSeg.addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  [...typeSeg.children].forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  newType = btn.dataset.t;
+});
 
 seg.addEventListener('click', e=>{
   const btn = e.target.closest('button');
@@ -353,7 +389,7 @@ nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addGuest(); });
 function addGuest(){
   const name = nameInput.value.trim();
   if(!name) return;
-  guests.push({ id: Date.now()+Math.random(), name, status: newStatus });
+  guests.push({ id: Date.now()+Math.random(), name, status: newStatus, type: newType });
   nameInput.value='';
   render();
   nameInput.focus();
@@ -363,12 +399,23 @@ function cycleStatus(s){
   return s==='Neconfirmat' ? 'Confirmat' : s==='Confirmat' ? 'Refuzat' : 'Neconfirmat';
 }
 
+function cycleType(t){
+  return t==='Singur' ? 'Cuplu' : 'Singur';
+}
+
+function personCount(g){
+  return g.type==='Cuplu' ? 2 : 1;
+}
+
 function render(){
-  document.getElementById('statTotal').textContent = guests.length;
+  const total = guests.length;
+  const persons = guests.reduce((s,g)=>s+personCount(g), 0);
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPersons').textContent = persons;
   document.getElementById('statConf').textContent = guests.filter(g=>g.status==='Confirmat').length;
   document.getElementById('statPend').textContent = guests.filter(g=>g.status==='Neconfirmat').length;
   document.getElementById('statDecl').textContent = guests.filter(g=>g.status==='Refuzat').length;
-  document.getElementById('listCount').textContent = guests.length + (guests.length===1 ? ' nume' : ' nume');
+  document.getElementById('listCount').textContent = total + (total===1 ? ' invitat' : ' invitați') + ' · ' + persons + ' persoane';
 
   if(guests.length===0){
     listEl.innerHTML = `<div class="empty-state"><div class="glyph">∗</div><p>Niciun invitat încă. Adaugă primul nume mai sus.</p></div>`;
@@ -378,15 +425,23 @@ function render(){
   listEl.innerHTML = guests.map(g => `
     <div class="guest-row" data-id="${g.id}">
       <div class="guest-name" contenteditable="true" data-id="${g.id}">${escapeHtml(g.name)}</div>
+      <div class="type-badge ${g.type}" data-id="${g.id}">${g.type==='Cuplu' ? '♡ Cuplu' : 'Singur'}</div>
       <div class="status-badge ${g.status}" data-id="${g.id}">${g.status}</div>
       <button class="del-btn" data-id="${g.id}" title="Șterge">×</button>
     </div>
   `).join('');
 
+  listEl.querySelectorAll('.type-badge').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const g = guests.find(x => String(x.id)===el.dataset.id);
+      g.type = cycleType(g.type);
+      render();
+    });
+  });
+
   listEl.querySelectorAll('.status-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
-      const id = el.dataset.id;
-      const g = guests.find(x => String(x.id)===id);
+      const g = guests.find(x => String(x.id)===el.dataset.id);
       g.status = cycleStatus(g.status);
       render();
     });
@@ -402,8 +457,7 @@ function render(){
 
   listEl.querySelectorAll('.guest-name').forEach(el=>{
     el.addEventListener('blur', ()=>{
-      const id = el.dataset.id;
-      const g = guests.find(x => String(x.id)===id);
+      const g = guests.find(x => String(x.id)===el.dataset.id);
       const txt = el.textContent.trim();
       if(txt) g.name = txt; else el.textContent = g.name;
     });
