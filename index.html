@@ -1404,8 +1404,8 @@ document.querySelectorAll('.view-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     currentView = btn.dataset.view;
     document.querySelectorAll('.view-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===currentView));
-    document.getElementById('viewGuests').style.display = currentView==='guests' ? '' : 'none';
-    document.getElementById('viewTables').style.display = currentView==='tables' ? '' : 'none';
+    document.getElementById('viewGuests').style.display = currentView==='guests' ? 'block' : 'none';
+    document.getElementById('viewTables').style.display = currentView==='tables' ? 'block' : 'none';
     if(currentView==='tables') renderTables();
   });
 });
