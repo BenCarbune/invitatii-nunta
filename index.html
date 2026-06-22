@@ -21,7 +21,7 @@
     --couple:#a49abb;
   }
 
-  *{box-sizing:border-box;}
+  *{ box-sizing:border-box; }
 
   body{
     margin:0;
@@ -37,6 +37,143 @@
 
   .wrap{ max-width:900px; margin:0 auto; }
 
+  /* ================================================
+     LOADER
+  ================================================ */
+  #loader{
+    position:fixed;
+    inset:0;
+    z-index:999;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(246,227,225,0.7), transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(246,227,225,0.55), transparent 50%),
+      var(--paper);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    transition: opacity 0.55s cubic-bezier(0.4,0,0.2,1),
+                transform 0.55s cubic-bezier(0.4,0,0.2,1);
+    will-change: opacity, transform;
+  }
+  #loader.done{
+    opacity:0;
+    transform:translateY(-14px);
+    pointer-events:none;
+  }
+
+  .l-ornament{
+    display:flex;
+    align-items:center;
+    margin-bottom:4px;
+  }
+  .l-line{
+    display:block;
+    width:56px;
+    height:1px;
+    background:var(--blush-deep);
+  }
+  .l-line-left{
+    transform-origin:right center;
+    animation: lineGrow 0.55s cubic-bezier(0.16,1,0.3,1) 0s both;
+  }
+  .l-line-right{
+    transform-origin:left center;
+    animation: lineGrow 0.55s cubic-bezier(0.16,1,0.3,1) 0s both;
+  }
+  .l-diamond{
+    display:block;
+    width:8px; height:8px;
+    background:var(--blush-deep);
+    transform:rotate(45deg) scale(0);
+    margin:0 10px;
+    animation: diamondPop 0.35s cubic-bezier(0.34,1.56,0.64,1) 0.35s both;
+  }
+
+  .l-title{
+    font-family:'Marcellus', serif;
+    font-size:clamp(44px,8vw,64px);
+    color:var(--ink);
+    letter-spacing:0.06em;
+    margin:0;
+    opacity:0;
+    animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.18s both;
+  }
+  .l-sub{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--ink-soft);
+    margin:0;
+    opacity:0;
+    animation: fadeUp 0.45s ease 0.42s both;
+  }
+  .l-dots{
+    display:inline-flex;
+    gap:6px;
+    margin-top:6px;
+    opacity:0;
+    animation: fadeUp 0.3s ease 0.65s both;
+  }
+  .l-dot{
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--blush-deep);
+    animation: dotPulse 1.2s ease-in-out infinite;
+  }
+  .l-dot:nth-child(2){ animation-delay:0.2s; }
+  .l-dot:nth-child(3){ animation-delay:0.4s; }
+
+  /* ================================================
+     LOADER KEYFRAMES
+  ================================================ */
+  @keyframes lineGrow{
+    from{ transform:scaleX(0); }
+    to{ transform:scaleX(1); }
+  }
+  @keyframes diamondPop{
+    to{ transform:rotate(45deg) scale(1); }
+  }
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:none; }
+  }
+  @keyframes dotPulse{
+    0%,100%{ opacity:0.3; transform:scale(0.8); }
+    50%{ opacity:1; transform:scale(1); }
+  }
+
+  /* ================================================
+     PAGE ENTRANCE (triggered by body.loaded)
+  ================================================ */
+  header, .stats, .add-card, .list-head, .guest-list{
+    opacity:0;
+  }
+  body.loaded header{
+    animation: sectionIn 0.55s cubic-bezier(0.16,1,0.3,1) 0.05s both;
+  }
+  body.loaded .stats{
+    animation: sectionIn 0.55s cubic-bezier(0.16,1,0.3,1) 0.15s both;
+  }
+  body.loaded .add-card{
+    animation: sectionIn 0.55s cubic-bezier(0.16,1,0.3,1) 0.25s both;
+  }
+  body.loaded .list-head{
+    animation: sectionIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.32s both;
+  }
+  body.loaded .guest-list{
+    animation: sectionIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.38s both;
+  }
+
+  @keyframes sectionIn{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:none; }
+  }
+
+  /* ================================================
+     HEADER
+  ================================================ */
   header{
     text-align:center;
     margin-bottom:40px;
@@ -70,8 +207,9 @@
     height:14px;
     margin:22px auto 0;
     position:relative;
+    animation: floatGently 5s ease-in-out infinite;
   }
-  .ornament::before, .ornament::after{
+  .ornament::before,.ornament::after{
     content:"";
     position:absolute;
     top:50%;
@@ -89,6 +227,14 @@
     background:var(--blush-deep);
   }
 
+  @keyframes floatGently{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-4px); }
+  }
+
+  /* ================================================
+     STATS
+  ================================================ */
   .stats{
     display:flex;
     justify-content:center;
@@ -101,6 +247,11 @@
     font-family:'Marcellus', serif;
     font-size:26px;
     color:var(--ink);
+    transition: color 0.3s ease;
+    display:inline-block;
+  }
+  .stat .num.pop{
+    animation: numPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
   }
   .stat .lbl{
     font-size:10px;
@@ -114,6 +265,15 @@
   .stat.declined .num{ color:var(--declined); }
   .stat.persons .num{ color:var(--couple); }
 
+  @keyframes numPop{
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.25); }
+    100%{ transform:scale(1); }
+  }
+
+  /* ================================================
+     ADD CARD
+  ================================================ */
   .add-card{
     background:var(--paper);
     border:1px solid var(--rose-line);
@@ -125,6 +285,10 @@
     gap:12px;
     flex-wrap:wrap;
     align-items:center;
+    transition: box-shadow 0.25s ease;
+  }
+  .add-card:focus-within{
+    box-shadow:0 16px 40px -18px rgba(180,120,115,0.45);
   }
   .add-card input[type=text]{
     flex:1;
@@ -158,7 +322,7 @@
     text-transform:uppercase;
     color:var(--ink-soft);
     cursor:pointer;
-    transition:.15s;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   .seg button.active[data-v="Confirmat"]{ background:var(--confirmed); color:#fff; }
   .seg button.active[data-v="Neconfirmat"]{ background:var(--pending); color:#fff; }
@@ -177,12 +341,18 @@
     padding:10px 20px;
     border-radius:20px;
     cursor:pointer;
-    transition:.2s;
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     white-space:nowrap;
+    position:relative;
+    overflow:hidden;
   }
-  .add-btn:hover{ background:#b8924d; }
-  .add-btn:disabled{ opacity:.5; cursor:default; }
+  .add-btn:hover{ background:#b8924d; box-shadow:0 4px 14px -4px rgba(201,163,95,0.5); }
+  .add-btn:active{ transform:scale(0.96); }
+  .add-btn:disabled{ opacity:.5; cursor:default; transform:none; }
 
+  /* ================================================
+     LIST
+  ================================================ */
   .list-head{
     display:flex;
     justify-content:space-between;
@@ -201,6 +371,7 @@
     font-size:11px;
     color:var(--ink-soft);
     letter-spacing:0.05em;
+    transition: opacity 0.3s ease;
   }
 
   .guest-list{
@@ -211,22 +382,48 @@
     overflow:hidden;
   }
 
+  /* ================================================
+     GUEST ROWS
+  ================================================ */
   .guest-row{
     display:flex;
     align-items:center;
     gap:16px;
     padding:16px 22px;
     border-bottom:1px solid #f1e6e5;
-    transition:background .15s;
+    transition: background 0.15s ease;
+    will-change: transform, opacity;
   }
   .guest-row:last-child{ border-bottom:none; }
   .guest-row:hover{ background:#fdf8f7; }
+
+  /* Enter animation */
+  .guest-row.row-enter{
+    animation: rowIn 0.38s cubic-bezier(0.16,1,0.3,1) var(--row-delay, 0ms) both;
+  }
+
+  /* Exit animation */
+  .guest-row.row-exit{
+    animation: rowOut 0.28s ease-in forwards;
+    overflow:hidden;
+    pointer-events:none;
+  }
+
+  @keyframes rowIn{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:none; }
+  }
+  @keyframes rowOut{
+    from{ opacity:1; transform:translateX(0); max-height:80px; padding-top:16px; padding-bottom:16px; }
+    to{ opacity:0; transform:translateX(20px); max-height:0; padding-top:0; padding-bottom:0; }
+  }
 
   .guest-name{
     flex:1;
     font-family:'Cormorant Garamond', serif;
     font-size:21px;
     color:var(--ink);
+    transition: color 0.15s;
   }
   .guest-name[contenteditable]:focus{
     outline:none;
@@ -242,9 +439,10 @@
     cursor:pointer;
     white-space:nowrap;
     font-family:'Jost',sans-serif;
-    transition:.15s;
     border:1px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
   }
+  .type-badge:active{ transform:scale(0.93); }
   .type-badge.Singur{ background:#f2efed; color:var(--ink-soft); border-color:#e0d6d4; }
   .type-badge.Cuplu{ background:#eeebf5; color:var(--couple); border-color:#d8d1ea; }
 
@@ -258,8 +456,9 @@
     border:1px solid transparent;
     white-space:nowrap;
     font-family:'Jost',sans-serif;
-    transition:.15s;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
   }
+  .status-badge:active{ transform:scale(0.93); }
   .status-badge.Confirmat{ background:#eef3ea; color:var(--confirmed); border-color:#d3e0ca; }
   .status-badge.Neconfirmat{ background:#faf2e0; color:#b3893a; border-color:#ecd8a8; }
   .status-badge.Refuzat{ background:#f7eaea; color:var(--declined); border-color:#edd2d2; }
@@ -273,14 +472,19 @@
     line-height:1;
     cursor:pointer;
     border-radius:50%;
-    transition:.15s;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
   }
   .del-btn:hover{ background:#f7eaea; color:var(--declined); }
+  .del-btn:active{ transform:scale(0.88); }
 
+  /* ================================================
+     EMPTY / LOADING STATES
+  ================================================ */
   .empty-state{
     text-align:center;
     padding:60px 20px;
     color:var(--ink-soft);
+    animation: fadeUp 0.4s ease both;
   }
   .empty-state .glyph{
     font-family:'Marcellus',serif;
@@ -304,6 +508,9 @@
     font-size:18px;
   }
 
+  /* ================================================
+     FOOTER
+  ================================================ */
   footer{
     text-align:center;
     margin-top:40px;
@@ -312,16 +519,51 @@
     letter-spacing:0.1em;
   }
 
+  /* ================================================
+     RESPONSIVE
+  ================================================ */
   @media(max-width:560px){
     .add-card{ flex-direction:column; align-items:stretch; }
     .seg{ justify-content:center; }
     .guest-row{ flex-wrap:wrap; }
   }
+
+  /* ================================================
+     REDUCED MOTION
+  ================================================ */
+  @media (prefers-reduced-motion: reduce){
+    #loader{ transition:none; }
+    .l-line-left,.l-line-right,.l-diamond,.l-title,.l-sub,.l-dots{
+      animation:none; opacity:1; transform:none;
+    }
+    header,.stats,.add-card,.list-head,.guest-list{
+      animation:none !important; opacity:1 !important; transform:none !important;
+    }
+    .guest-row.row-enter,.guest-row.row-exit{ animation:none !important; }
+    .ornament{ animation:none; }
+    .stat .num.pop{ animation:none; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
 
+<!-- Loading screen -->
+<div id="loader" role="status" aria-label="Se încarcă...">
+  <div class="l-ornament">
+    <span class="l-line l-line-left"></span>
+    <span class="l-diamond"></span>
+    <span class="l-line l-line-right"></span>
+  </div>
+  <p class="l-title">F. &amp; B.</p>
+  <p class="l-sub">se pregătește lista…</p>
+  <div class="l-dots">
+    <span class="l-dot"></span>
+    <span class="l-dot"></span>
+    <span class="l-dot"></span>
+  </div>
+</div>
+
+<div class="wrap">
   <header>
     <div class="eyebrow">Cu drag, pentru ziua noastră</div>
     <h1>Lista Invitaților</h1>
@@ -366,7 +608,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig = {
+/* ── Firebase ── */
+firebase.initializeApp({
   apiKey: "AIzaSyCkNjLOjPDzhQJYnx3PpeO3WNvHCHnCDbQ",
   authDomain: "invitatii-973bf.firebaseapp.com",
   projectId: "invitatii-973bf",
@@ -374,22 +617,38 @@ const firebaseConfig = {
   messagingSenderId: "668840687838",
   appId: "1:668840687838:web:b0c82e3426217a7d146a4f",
   measurementId: "G-7MM78DX54T"
-};
-
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.firestore();
 const col = db.collection('guests');
 
+/* ── State ── */
 let guests = [];
 let newStatus = 'Neconfirmat';
 let newType = 'Singur';
+let firstRender = true;
+const animatedIds = new Set();
+const deletingIds = new Set();
 
-const listEl = document.getElementById('guestList');
+/* ── DOM refs ── */
+const listEl   = document.getElementById('guestList');
 const nameInput = document.getElementById('nameInput');
-const addBtn = document.getElementById('addBtn');
-const seg = document.getElementById('statusSeg');
-const typeSeg = document.getElementById('typeSeg');
+const addBtn   = document.getElementById('addBtn');
+const seg      = document.getElementById('statusSeg');
+const typeSeg  = document.getElementById('typeSeg');
+const loader   = document.getElementById('loader');
 
+/* ── Loader: show for at least 1 s, then reveal page ── */
+let dataReady = false;
+let timerDone = false;
+
+function tryReveal(){
+  if(!dataReady || !timerDone) return;
+  loader.classList.add('done');
+  document.body.classList.add('loaded');
+}
+setTimeout(()=>{ timerDone = true; tryReveal(); }, 1000);
+
+/* ── Toggles ── */
 typeSeg.addEventListener('click', e=>{
   const btn = e.target.closest('button');
   if(!btn) return;
@@ -406,6 +665,7 @@ seg.addEventListener('click', e=>{
   newStatus = btn.dataset.v;
 });
 
+/* ── Add guest ── */
 addBtn.addEventListener('click', addGuest);
 nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addGuest(); });
 
@@ -425,68 +685,121 @@ function addGuest(){
   }).catch(()=>{ addBtn.disabled = false; });
 }
 
-function cycleStatus(s){
-  return s==='Neconfirmat' ? 'Confirmat' : s==='Confirmat' ? 'Refuzat' : 'Neconfirmat';
-}
-function cycleType(t){
-  return t==='Singur' ? 'Cuplu' : 'Singur';
-}
-function personCount(g){
-  return g.type==='Cuplu' ? 2 : 1;
+/* ── Delete with exit animation ── */
+function deleteGuest(id){
+  deletingIds.add(id);
+  const row = listEl.querySelector(`.guest-row[data-id="${id}"]`);
+  if(row){
+    row.classList.add('row-exit');
+    setTimeout(()=>{
+      col.doc(id).delete().then(()=>deletingIds.delete(id));
+    }, 300);
+  } else {
+    col.doc(id).delete();
+  }
 }
 
+/* ── Helpers ── */
+function cycleStatus(s){ return s==='Neconfirmat'?'Confirmat':s==='Confirmat'?'Refuzat':'Neconfirmat'; }
+function cycleType(t){ return t==='Singur'?'Cuplu':'Singur'; }
+function personCount(g){ return g.type==='Cuplu'?2:1; }
+
+/* ── Animated counter ── */
+const prevVals = {};
+function animateStat(id, to){
+  const el = document.getElementById(id);
+  const from = prevVals[id] ?? to;
+  prevVals[id] = to;
+  if(from === to){ el.textContent = to; return; }
+  /* pop the element */
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  el.addEventListener('animationend', ()=>el.classList.remove('pop'), { once:true });
+  /* count up/down */
+  const dur = 380;
+  const start = performance.now();
+  const diff = to - from;
+  function step(now){
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(from + diff * ease);
+    if(t < 1) requestAnimationFrame(step);
+    else el.textContent = to;
+  }
+  requestAnimationFrame(step);
+}
+
+/* ── Firestore real-time listener ── */
 col.orderBy('createdAt').onSnapshot(snapshot=>{
   guests = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+  if(!dataReady){ dataReady = true; tryReveal(); }
   render();
 });
 
+/* ── Render ── */
 function render(){
-  const total = guests.length;
-  const persons = guests.reduce((s,g)=>s+personCount(g), 0);
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statPersons').textContent = persons;
-  document.getElementById('statConf').textContent = guests.filter(g=>g.status==='Confirmat').length;
-  document.getElementById('statPend').textContent = guests.filter(g=>g.status==='Neconfirmat').length;
-  document.getElementById('statDecl').textContent = guests.filter(g=>g.status==='Refuzat').length;
-  document.getElementById('listCount').textContent = total + (total===1?' invitat':' invitați') + ' · ' + persons + ' persoane';
+  const visible = guests.filter(g=>!deletingIds.has(g.id));
+  const total   = visible.length;
+  const persons = visible.reduce((s,g)=>s+personCount(g), 0);
 
-  if(guests.length===0){
+  animateStat('statTotal',   total);
+  animateStat('statPersons', persons);
+  animateStat('statConf',    visible.filter(g=>g.status==='Confirmat').length);
+  animateStat('statPend',    visible.filter(g=>g.status==='Neconfirmat').length);
+  animateStat('statDecl',    visible.filter(g=>g.status==='Refuzat').length);
+
+  const countEl = document.getElementById('listCount');
+  countEl.textContent = total + (total===1?' invitat':' invitați') + ' · ' + persons + ' persoane';
+
+  if(visible.length===0){
     listEl.innerHTML = `<div class="empty-state"><div class="glyph">∗</div><p>Niciun invitat încă. Adaugă primul nume mai sus.</p></div>`;
+    firstRender = false;
     return;
   }
 
-  listEl.innerHTML = guests.map(g=>`
-    <div class="guest-row" data-id="${g.id}">
+  const isInitialBatch = firstRender;
+  listEl.innerHTML = visible.map((g, i)=>{
+    const isNew = !animatedIds.has(g.id);
+    const delay = isNew && isInitialBatch ? i * 55 : 0;
+    return `
+    <div class="guest-row row-enter" data-id="${g.id}" style="--row-delay:${delay}ms">
       <div class="guest-name" contenteditable="true" data-id="${g.id}">${escapeHtml(g.name)}</div>
       <div class="type-badge ${g.type}" data-id="${g.id}">${g.type==='Cuplu'?'♡ Cuplu':'Singur'}</div>
       <div class="status-badge ${g.status}" data-id="${g.id}">${g.status}</div>
       <button class="del-btn" data-id="${g.id}" title="Șterge">×</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
+  visible.forEach(g=>animatedIds.add(g.id));
+  firstRender = false;
+
+  /* Event delegation for type badge */
   listEl.querySelectorAll('.type-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
       const g = guests.find(x=>x.id===el.dataset.id);
-      col.doc(g.id).update({ type: cycleType(g.type) });
+      if(g) col.doc(g.id).update({ type: cycleType(g.type) });
     });
   });
 
+  /* Event delegation for status badge */
   listEl.querySelectorAll('.status-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
       const g = guests.find(x=>x.id===el.dataset.id);
-      col.doc(g.id).update({ status: cycleStatus(g.status) });
+      if(g) col.doc(g.id).update({ status: cycleStatus(g.status) });
     });
   });
 
+  /* Delete */
   listEl.querySelectorAll('.del-btn').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      col.doc(el.dataset.id).delete();
-    });
+    el.addEventListener('click', ()=>deleteGuest(el.dataset.id));
   });
 
+  /* Inline name edit */
   listEl.querySelectorAll('.guest-name').forEach(el=>{
     el.addEventListener('blur', ()=>{
       const g = guests.find(x=>x.id===el.dataset.id);
+      if(!g) return;
       const txt = el.textContent.trim();
       if(txt && txt!==g.name) col.doc(g.id).update({ name: txt });
       else el.textContent = g.name;
