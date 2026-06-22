@@ -467,8 +467,23 @@
   .status-badge.Refuzat{ background:#f7eaea; color:var(--declined); border-color:#edd2d2; }
   .status-badge.fara-prezenta{ background:#e8f0f7; color:var(--absent); border-color:#c5d5e4; }
 
+  .edit-btn{
+    width:28px; height:28px;
+    border:none;
+    background:transparent;
+    color:#c4b3b1;
+    font-size:14px;
+    cursor:pointer;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  }
+  .edit-btn:hover{ background:#fdf3e5; color:var(--gold); }
+  .edit-btn:active{ transform:scale(0.88); }
+
   .del-btn{
-    width:26px; height:26px;
+    width:28px; height:28px;
     border:none;
     background:transparent;
     color:#d4b8b6;
@@ -480,6 +495,65 @@
   }
   .del-btn:hover{ background:#f7eaea; color:var(--declined); }
   .del-btn:active{ transform:scale(0.88); }
+
+  /* ── Edit mode ── */
+  .guest-row.editing{
+    flex-direction:column;
+    align-items:stretch;
+    gap:14px;
+    background:#fdf8f7;
+    padding:18px 22px;
+  }
+  .edit-name{
+    border:none;
+    border-bottom:1.5px solid var(--gold);
+    background:transparent;
+    font-family:'Cormorant Garamond', serif;
+    font-size:21px;
+    color:var(--ink);
+    outline:none;
+    padding:4px 2px 6px;
+    width:100%;
+  }
+  .edit-controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .edit-controls .seg button{ padding:10px 14px; }
+  .edit-actions{
+    display:flex;
+    gap:8px;
+  }
+  .save-btn{
+    background:var(--gold);
+    color:#fff;
+    border:1px solid var(--gold);
+    border-radius:20px;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:9px 20px;
+    cursor:pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+  .save-btn:hover{ background:#b8924d; }
+  .save-btn:active{ transform:scale(0.96); }
+  .cancel-btn{
+    background:transparent;
+    color:var(--ink-soft);
+    border:1px solid var(--rose-line);
+    border-radius:20px;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:9px 16px;
+    cursor:pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .cancel-btn:hover{ border-color:var(--ink-soft); color:var(--ink); }
 
   /* ================================================
      EMPTY / LOADING STATES
@@ -602,14 +676,25 @@
       font-size:20px;
       padding-right:6px;
     }
+    .edit-btn{
+      width:36px; height:36px;
+      font-size:16px;
+      align-self:flex-start;
+      margin-top:-4px;
+    }
     .del-btn{
-      flex:0 0 40px;
-      width:40px; height:40px;
+      flex:0 0 36px;
+      width:36px; height:36px;
       font-size:20px;
       align-self:flex-start;
-      margin-top:-6px;
-      margin-right:-6px;
+      margin-top:-4px;
     }
+    .guest-row.editing{ padding:16px; gap:12px; }
+    .edit-controls{ flex-direction:column; }
+    .edit-controls .seg{ width:100%; }
+    .edit-controls .seg button{ flex:1; }
+    .edit-actions{ margin-top:2px; }
+    .save-btn,.cancel-btn{ flex:1; text-align:center; }
     .type-badge{
       margin-top:10px;
       margin-right:8px;
@@ -727,6 +812,7 @@ let guests = [];
 let newStatus = 'Neconfirmat';
 let newType = 'Singur';
 let firstRender = true;
+let editingId = null;
 const animatedIds = new Set();
 const deletingIds = new Set();
 
@@ -866,11 +952,37 @@ function render(){
   listEl.innerHTML = visible.map((g, i)=>{
     const isNew = !animatedIds.has(g.id);
     const delay = isNew && isInitialBatch ? i * 55 : 0;
+    const cls = `guest-row row-enter${g.id===editingId?' editing':''}`;
+
+    if(g.id === editingId){
+      return `
+      <div class="${cls}" data-id="${g.id}" style="--row-delay:${delay}ms">
+        <input class="edit-name" value="${escapeHtml(g.name)}" placeholder="Numele…" />
+        <div class="edit-controls">
+          <div class="seg edit-type-seg">
+            <button data-t="Singur" class="${g.type==='Singur'?'active':''}">singur</button>
+            <button data-t="Cuplu" class="${g.type==='Cuplu'?'active':''}">cuplu</button>
+          </div>
+          <div class="seg edit-status-seg">
+            <button data-v="Neconfirmat" class="${g.status==='Neconfirmat'?'active':''}">neconf.</button>
+            <button data-v="Confirmat" class="${g.status==='Confirmat'?'active':''}">conf.</button>
+            <button data-v="Refuzat" class="${g.status==='Refuzat'?'active':''}">refuzat</button>
+            <button data-v="Fără prezență" class="${g.status==='Fără prezență'?'active':''}">fără prez.</button>
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button class="save-btn" data-id="${g.id}">✓ Salvează</button>
+          <button class="cancel-btn">Anulează</button>
+        </div>
+      </div>`;
+    }
+
     return `
-    <div class="guest-row row-enter" data-id="${g.id}" style="--row-delay:${delay}ms">
-      <div class="guest-name" contenteditable="true" data-id="${g.id}">${escapeHtml(g.name)}</div>
+    <div class="${cls}" data-id="${g.id}" style="--row-delay:${delay}ms">
+      <div class="guest-name">${escapeHtml(g.name)}</div>
       <div class="type-badge ${g.type}" data-id="${g.id}">${g.type==='Cuplu'?'♡ Cuplu':'Singur'}</div>
       <div class="status-badge ${statusClass(g.status)}" data-id="${g.id}">${g.status}</div>
+      <button class="edit-btn" data-id="${g.id}" title="Editează">✎</button>
       <button class="del-btn" data-id="${g.id}" title="Șterge">×</button>
     </div>`;
   }).join('');
@@ -878,15 +990,53 @@ function render(){
   visible.forEach(g=>animatedIds.add(g.id));
   firstRender = false;
 
-  /* Event delegation for type badge */
+  /* Focus edit input */
+  if(editingId){
+    const inp = listEl.querySelector('.edit-name');
+    if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
+
+  /* Edit button */
+  listEl.querySelectorAll('.edit-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{ editingId = el.dataset.id; render(); });
+  });
+
+  /* Edit seg toggles */
+  listEl.querySelectorAll('.edit-type-seg, .edit-status-seg').forEach(s=>{
+    s.addEventListener('click', e=>{
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      [...s.children].forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  /* Save */
+  listEl.querySelectorAll('.save-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.id;
+      const row = listEl.querySelector(`.guest-row[data-id="${id}"]`);
+      const name = row.querySelector('.edit-name').value.trim();
+      if(!name) return;
+      const type   = row.querySelector('.edit-type-seg button.active')?.dataset.t;
+      const status = row.querySelector('.edit-status-seg button.active')?.dataset.v;
+      col.doc(id).update({ name, ...(type && {type}), ...(status && {status}) });
+      editingId = null;
+    });
+  });
+
+  /* Cancel */
+  listEl.querySelectorAll('.cancel-btn').forEach(el=>{
+    el.addEventListener('click', ()=>{ editingId = null; render(); });
+  });
+
+  /* Badge cycling (normal rows only) */
   listEl.querySelectorAll('.type-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
       const g = guests.find(x=>x.id===el.dataset.id);
       if(g) col.doc(g.id).update({ type: cycleType(g.type) });
     });
   });
-
-  /* Event delegation for status badge */
   listEl.querySelectorAll('.status-badge').forEach(el=>{
     el.addEventListener('click', ()=>{
       const g = guests.find(x=>x.id===el.dataset.id);
@@ -897,20 +1047,6 @@ function render(){
   /* Delete */
   listEl.querySelectorAll('.del-btn').forEach(el=>{
     el.addEventListener('click', ()=>deleteGuest(el.dataset.id));
-  });
-
-  /* Inline name edit */
-  listEl.querySelectorAll('.guest-name').forEach(el=>{
-    el.addEventListener('blur', ()=>{
-      const g = guests.find(x=>x.id===el.dataset.id);
-      if(!g) return;
-      const txt = el.textContent.trim();
-      if(txt && txt!==g.name) col.doc(g.id).update({ name: txt });
-      else el.textContent = g.name;
-    });
-    el.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){ e.preventDefault(); el.blur(); }
-    });
   });
 }
 
